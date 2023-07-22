@@ -1,0 +1,62 @@
+// Пример базового смарт-контракта для цифровой идентификации
+
+// Объявление версии компилятора
+pragma solidity ^0.8.0;
+
+contract DigitalIdentity {
+    // Структура для хранения данных идентификации
+    struct IdentityData {
+        string fullName;
+        uint256 dateOfBirth;
+        string governmentID; // Паспорт, ID, лицензия и т.д.
+        address owner; // Адрес владельца идентификации
+    }
+
+    // Маппинг адресов на данные идентификации
+    mapping(address => IdentityData) public identities;
+
+    // Событие для оповещения об успешной регистрации идентификации
+    event IdentityRegistered(address indexed owner, string fullName);
+
+    // Модификатор для проверки, что только владелец идентификации может изменить данные
+    modifier onlyIdentityOwner(address _identityOwner) {
+        require(msg.sender == _identityOwner, "You are not the owner of this identity");
+        _;
+    }
+
+    // Функция для регистрации новой идентификации
+    function registerIdentity(
+        string memory _fullName,
+        uint256 _dateOfBirth,
+        string memory _governmentID
+    ) public {
+        // Проверяем, что идентификация для данного адреса еще не зарегистрирована
+        require(identities[msg.sender].dateOfBirth == 0, "Identity already registered");
+
+        // Создаем новую идентификацию и сохраняем данные
+        identities[msg.sender] = IdentityData({
+            fullName: _fullName,
+            dateOfBirth: _dateOfBirth,
+            governmentID: _governmentID,
+            owner: msg.sender
+        });
+
+        // Вызываем событие для оповещения об успешной регистрации
+        emit IdentityRegistered(msg.sender, _fullName);
+    }
+
+    // Функция для обновления данных идентификации
+    function updateIdentity(
+        string memory _fullName,
+        uint256 _dateOfBirth,
+        string memory _governmentID
+    ) public onlyIdentityOwner(msg.sender) {
+        // Проверяем, что идентификация для данного адреса уже зарегистрирована
+        require(identities[msg.sender].dateOfBirth != 0, "Identity not registered");
+
+        // Обновляем данные идентификации
+        identities[msg.sender].fullName = _fullName;
+        identities[msg.sender].dateOfBirth = _dateOfBirth;
+        identities[msg.sender].governmentID = _governmentID;
+    }
+}
