@@ -59,4 +59,10 @@ contract DigitalIdentity {
         identities[msg.sender].dateOfBirth = _dateOfBirth;
         identities[msg.sender].governmentID = _governmentID;
     }
+    
+    // Функция для получения данных идентификации по адресу
+    function getIdentity(address _address) public view returns (string memory, uint256, string memory, address) {
+        IdentityData storage identity = identities[_address];
+        return (identity.fullName, identity.dateOfBirth, identity.governmentID, identity.owner);
+    }
 }
