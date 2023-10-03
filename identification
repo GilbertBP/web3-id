@@ -1,0 +1,19 @@
+pragma solidity ^0.8.0;
+
+contract Identification {
+    string public name;
+    uint public age;
+    address public owner;
+
+    constructor(string memory _name, uint _age) {
+        name = _name;
+        age = _age;
+        owner = msg.sender;
+    }
+
+    function update(string memory _name, uint _age) public {
+        require(msg.sender == owner, "Only the owner can update the identification information.");
+        name = _name;
+        age = _age;
+    }
+}
